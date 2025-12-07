@@ -1,0 +1,9 @@
+{
+  "name": "Copy of Nihara: Your AI Companion",
+  "description": "An attractive and addictive AI companion offering multiple interaction modes including chat, image generation, astrology, a private diary, and live voice conversations. Built by Abhinav Gireesh.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

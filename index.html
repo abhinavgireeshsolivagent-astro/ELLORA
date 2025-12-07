@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nihara: AI Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --base-accent: 59, 130, 246;
+        --pro-accent: 168, 85, 247;
+      }
+      body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #030712; /* bg-gray-950 */
+        overflow: hidden;
+      }
+      #root {
+        background-color: #030712;
+        background-image: 
+          radial-gradient(ellipse at 10% 20%, rgba(233, 215, 255, 0.1) 0%, transparent 50%), /* Lavender */
+          radial-gradient(ellipse at 80% 30%, rgba(215, 255, 240, 0.08) 0%, transparent 50%), /* Teal */
+          radial-gradient(ellipse at 60% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 60%); /* Blue */
+        background-size: 300% 300%;
+        animation: gradientBG 25s ease infinite;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      #root.mega-pro {
+        background-color: #0a0b1e;
+        background-image: 
+          /* Subtle particle effect */
+          radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0),
+          /* Enhanced Jewel-tone accents */
+          radial-gradient(ellipse at 15% 15%, rgba(236, 72, 153, 0.4) 0%, transparent 60%),  /* neon pink */
+          radial-gradient(ellipse at 85% 25%, rgba(139, 92, 246, 0.4) 0%, transparent 60%),  /* violet */
+          radial-gradient(ellipse at 50% 95%, rgba(59, 130, 246, 0.4) 0%, transparent 50%), /* rich blue */
+          /* Deeper, more active base gradient */
+          linear-gradient(180deg, #0a0b1e 0%, #1a1b3c 100%);
+        
+        background-size: 20px 20px, 400% 400%, 400% 400%, 400% 400%, 100% 100%; /* Consistent background sizes */
+        animation: pro-aurora-bg 45s ease-in-out infinite alternate; /* Slower, more flowing, yet dynamic animation */
+      }
+
+      .chat-view-bg {
+        background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
+        background-size: 25px 25px;
+      }
+      .chat-view-bg-animated {
+        background: linear-gradient(135deg, #f87171, #fb923c, #818cf8, #38bdf8, #764ba2, #667eea);
+        background-size: 500% 500%;
+        animation: gradientBG-chat 18s ease infinite;
+      }
+      
+      .glassmorphic {
+        background: rgba(17, 25, 40, 0.75);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.125);
+      }
+      
+      .galaxy-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background: #000;
+      }
+      .galaxy-bg:before, .galaxy-bg:after {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        border-radius: 50%;
+        box-shadow: 
+          /* Static stars */
+          10vw 20vh 0 0 #fff, 80vw 70vh 1px 0 #fff, 
+          30vw 90vh 0 0 #fff, 50vw 10vh 1px 0 #fff,
+          25vw 55vh 0px 0 #fff, 70vw 5vh 1px 0 #fff,
+          /* Animated shooting stars */
+          -50vw 30vh 0 0 #fff, 20vw 80vh 1px 0 #fff;
+        animation: stars-fall 80s linear infinite;
+      }
+      .galaxy-bg:after {
+        animation-delay: -40s;
+      }
+
+      .galaxy-bg.is-pro-astro::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background-image: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.3) 0%, transparent 50%),
+                          radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 40%);
+        animation: rotate-nebula 120s linear infinite;
+      }
+
+      /* --- Interactive Glow Effects --- */
+      .interactive-glow {
+        transition: all 0.3s ease;
+      }
+      .interactive-glow:hover, .interactive-glow:focus, .interactive-glow:focus-within {
+        box-shadow: 0 0 15px rgba(var(--base-accent), 0.5), 0 0 5px rgba(var(--base-accent), 0.8) inset;
+      }
+      .is-pro .interactive-glow:hover, .is-pro .interactive-glow:focus, .is-pro .interactive-glow:focus-within {
+        box-shadow: 0 0 20px rgba(var(--pro-accent), 0.6), 0 0 8px rgba(var(--pro-accent), 0.7) inset;
+      }
+      .interactive-glow-text {
+        transition: all 0.3s ease;
+      }
+       .interactive-glow-text:hover {
+        text-shadow: 0 0 8px rgba(var(--base-accent), 0.8);
+       }
+      .is-pro .interactive-glow-text:hover {
+        text-shadow: 0 0 12px rgba(var(--pro-accent), 0.9);
+      }
+      
+      /* --- Mode Titles --- */
+      .mode-title {
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 2.25rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      }
+      .is-pro .mode-title {
+        background: linear-gradient(45deg, #f87171, #fb923c, #fbbf24, #a3e635, #4ade80, #38bdf8, #818cf8, #c084fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+        background-size: 300% auto;
+        animation: text-shine 8s linear infinite;
+      }
+
+      /* --- Top Upgrade Button --- */
+      .upgrade-button-top {
+        position: absolute;
+        top: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 30;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #111827;
+        background: linear-gradient(45deg, #fde047, #f97316);
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+      .upgrade-button-top:hover {
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+      }
+
+      /* --- Nihara Instructions Button --- */
+      .nihara-instructions-button {
+        position: absolute;
+        top: 1.5rem; /* Adjusted to be slightly lower than settings/camera */
+        right: 1.5rem;
+        z-index: 25;
+        padding: 0.5rem;
+        border-radius: 9999px;
+        background: rgba(168, 85, 247, 0.3); /* pro-accent with transparency */
+        color: #e8d0ff; /* light purple text */
+        box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px; /* Small, attractive icon */
+        height: 40px; /* Small, attractive icon */
+      }
+      .nihara-instructions-button:hover {
+        background: rgba(168, 85, 247, 0.5);
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+      }
+
+      /* --- Chat History Date Divider --- */
+      .date-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1rem 0;
+        color: #9ca3af; /* text-gray-400 */
+        font-size: 0.75rem; /* text-xs */
+        font-weight: 500;
+      }
+      .date-divider::before,
+      .date-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .date-divider:not(:empty)::before {
+        margin-right: 0.5em;
+      }
+      .date-divider:not(:empty)::after {
+        margin-left: 0.5em;
+      }
+
+      @keyframes text-shine {
+        to { background-position: -300% center; }
+      }
+
+      @keyframes rotate-nebula {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      @keyframes gradientBG-chat {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      @keyframes pro-aurora-bg {
+        0% { background-position: 0% 0%; }
+        25% { background-position: 100% 0%; }
+        50% { background-position: 100% 100%; }
+        75% { background-position: 0% 100%; }
+        100% { background-position: 0% 0%; }
+      }
+
+      @keyframes stars-fall {
+        from { transform: translateY(-100vh); }
+        to { transform: translateY(100vh); }
+      }
+
+      @keyframes fade-in-slide-up-left {
+        from { opacity: 0; transform: translateY(20px) translateX(-20px) scale(0.9); }
+        to { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+      }
+      .animate-message-in-left {
+        animation: fade-in-slide-up-left 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+
+      @keyframes fade-in-slide-up-right {
+        from { opacity: 0; transform: translateY(20px) translateX(20px) scale(0.9); }
+        to { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+      }
+      .animate-message-in-right {
+        animation: fade-in-slide-up-right 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+      
+      @keyframes subtle-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-subtle-fade-in {
+        animation: subtle-fade-in 0.5s ease-out forwards;
+      }
+      @keyframes subtle-fade-in-up {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-subtle-fade-in-up {
+        animation: subtle-fade-in-up 0.6s ease-out forwards;
+      }
+      
+      @keyframes fade-in-blur {
+        from { opacity: 0; filter: blur(10px); }
+        to { opacity: 1; filter: blur(0px); }
+      }
+      .animate-fade-in-blur {
+        animation: fade-in-blur 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+
+      @keyframes typing-dots {
+        0%, 20% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+      .animate-typing-dots {
+        animation: typing-dots 1.5s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+      }
+      
+      /* Live Mode Animations */
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px 5px rgba(22, 163, 74, 0.4); }
+        50% { box-shadow: 0 0 35px 15px rgba(22, 163, 74, 0.2); }
+      }
+      .animate-pulse-glow {
+          animation: pulse-glow 2.5s infinite ease-in-out;
+      }
+      @property --pro-glow-angle {
+        syntax: '<angle>';
+        initial-value: 0deg;
+        inherits: false;
+      }
+      @keyframes pro-glow-ring { 
+        to { --pro-glow-angle: 360deg; } 
+      }
+      @keyframes pro-pulse-shimmer {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.7;
+            filter: blur(15px);
+        }
+        50% {
+            transform: scale(1.15);
+            opacity: 1;
+            filter: blur(25px);
+        }
+      }
+      .animate-pro-glow-ring {
+        position: relative;
+      }
+      .animate-pro-glow-ring::before {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 9999px;
+        z-index: -1;
+        background: conic-gradient(from var(--pro-glow-angle), #d53369, #daae51, #33d569, #51aada, #6933d5, #d53369);
+        animation: pro-glow-ring 4s linear infinite, pro-pulse-shimmer 2.5s ease-in-out infinite;
+      }
+
+      @keyframes speaking-wave {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(1.5); opacity: 0; }
+      }
+       .animate-speaking-wave::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 50%;
+        border: 3px solid currentColor;
+        animation: speaking-wave 1.5s infinite ease-out;
+      }
+
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.24.0",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.545.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "js-base64": "https://aistudiocdn.com/js-base64@^3.7.8"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
